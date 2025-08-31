@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Prompt Generator</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="header-brand">
+                    <img src="logo.jpg" 
+                         class="app-logo" 
+                         alt="JSON Prompt Generator Logo"
+                         id="appLogo">
+                    <div class="brand-text">
+                        <h1 class="app-title">JSON Prompt Generator</h1>
+                        <p class="app-subtitle">Create structured AI prompts that get consistent results</p>
+                    </div>
+                    <button id="settingsBtn" class="btn btn--outline settings-btn">
+                        <span class="icon">⚙️</span>
+                        Settings
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Settings Modal -->
+        <div id="settingsModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Settings</h3>
+                    <button class="modal-close" id="settingsModalClose">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">Default AI Model</label>
+                        <select id="defaultAIModel" class="form-control">
+                            <option value="chatgpt">ChatGPT</option>
+                            <option value="gemini">Google Gemini</option>
+                            <option value="claude">Anthropic Claude</option>
+                            <option value="copilot">GitHub Copilot</option>
+                        </select>
+                        <p class="form-help">Select which AI model to use when opening prompts</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn--outline" id="settingsModalCancel">Cancel</button>
+                    <button class="btn btn--primary" id="settingsModalSave">Save Changes</button>
+                </div>
+            </div>
+            <div class="modal-backdrop"></div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Left Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-content">
+                    <!-- Template Selection -->
+                    <div class="template-section">
+                        <div class="template-header">
+                            <h3>Templates</h3>
+                            <button id="saveTemplateBtn" class="btn btn--outline btn--sm">
+                                <span class="icon">💾</span>
+                                Save Template
+                            </button>
+                        </div>
+                        <select id="templateSelect" class="form-control">
+                            <option value="">Select a template...</option>
+                        </select>
+                        <div class="template-actions">
+                            <button id="manageTemplatesBtn" class="btn btn--secondary btn--sm btn--full-width" style="margin-top: 8px;">
+                                <span class="icon">📂</span>
+                                Manage Custom Templates
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Field Types -->
+                    <div class="field-types-section">
+                        <h3>Field Types</h3>
+                        <div class="field-types-grid">
+                            <button class="field-type-btn" data-type="string">
+                                <span class="icon">📝</span>
+                                Text
+                            </button>
+                            <button class="field-type-btn" data-type="number">
+                                <span class="icon">🔢</span>
+                                Number
+                            </button>
+                            <button class="field-type-btn" data-type="boolean">
+                                <span class="icon">✓</span>
+                                Boolean
+                            </button>
+                            <button class="field-type-btn" data-type="array">
+                                <span class="icon">📋</span>
+                                Array
+                            </button>
+                            <button class="field-type-btn" data-type="object">
+                                <span class="icon">🔧</span>
+                                Object
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Add Field Button -->
+                    <button id="addFieldBtn" class="btn btn--primary btn--full-width">
+                        <span class="icon">+</span>
+                        Add Field
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Center Panel - Prompt Builder -->
+            <section class="prompt-builder">
+                <div class="builder-header">
+                    <h2>Prompt Builder</h2>
+                    <button id="clearAllBtn" class="btn btn--outline btn--sm">Clear All</button>
+                </div>
+                
+                <div id="fieldsContainer" class="fields-container">
+                    <!-- Dynamic fields will be added here -->
+                </div>
+
+                <div class="builder-footer">
+                    <button id="addFieldBottomBtn" class="btn btn--secondary">
+                        <span class="icon">+</span>
+                        Add Another Field
+                    </button>
+                </div>
+            </section>
+
+            <!-- Right Panel - JSON Preview -->
+            <section class="json-preview">
+                <div class="preview-header">
+                    <h2 class="preview-title">JSON Preview</h2>
+                    <div class="preview-actions">
+                        <button id="copyBtn" class="btn btn--sm btn--outline">
+                            <span class="icon">📋</span>
+                            Copy
+                        </button>
+                        <button id="downloadBtn" class="btn btn--sm btn--outline">
+                            <span class="icon">⬇️</span>
+                            Download
+                        </button>
+                        <button id="chatgptBtn" class="btn btn--sm btn--primary">
+                            <span class="icon">🤖</span>
+                            Open in ChatGPT
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="json-container">
+                    <pre id="jsonOutput" class="json-output">{
+  "task": "write content",
+  "platform": "blog",
+  "topic": "",
+  "audience": "",
+  "tone": "professional"
+}</pre>
+                </div>
+
+                <div class="validation-status">
+                    <div id="validationMessage" class="status status--success">
+                        <span class="icon">✓</span>
+                        Valid JSON
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal for field editing -->
+    <div id="fieldModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Field</h3>
+                <button class="modal-close" id="modalClose">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Field Name</label>
+                    <input type="text" id="modalFieldName" class="form-control" placeholder="Enter field name">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Field Type</label>
+                    <select id="modalFieldType" class="form-control">
+                        <option value="string">Text</option>
+                        <option value="number">Number</option>
+                        <option value="boolean">Boolean</option>
+                        <option value="array">Array</option>
+                        <option value="object">Object</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Default Value</label>
+                    <input type="text" id="modalFieldValue" class="form-control" placeholder="Enter default value">
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="modalFieldRequired">
+                        Required field
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn--outline" id="modalCancel">Cancel</button>
+                <button class="btn btn--primary" id="modalSave">Save Changes</button>
+            </div>
+        </div>
+        <div class="modal-backdrop"></div>
+    </div>
+
+    <!-- Save Template Modal -->
+    <div id="saveTemplateModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Save Template</h3>
+                <button class="modal-close" id="saveTemplateModalClose">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Template Name</label>
+                    <input type="text" id="templateName" class="form-control" placeholder="Enter template name">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <input type="text" id="templateCategory" class="form-control" placeholder="Enter category (optional)">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea id="templateDescription" class="form-control" placeholder="Enter template description" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn--outline" id="saveTemplateModalCancel">Cancel</button>
+                <button class="btn btn--primary" id="saveTemplateModalSave">Save Template</button>
+            </div>
+        </div>
+        <div class="modal-backdrop"></div>
+    </div>
+
+    <!-- Manage Templates Modal -->
+    <div id="manageTemplatesModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Manage Templates</h3>
+                <button class="modal-close" id="manageTemplatesModalClose">×</button>
+            </div>
+            <div class="modal-body">
+                <div id="customTemplatesList" class="custom-templates-list">
+                    <!-- Custom templates will be listed here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn--outline" id="manageTemplatesModalClose2">Close</button>
+            </div>
+        </div>
+        <div class="modal-backdrop"></div>
+    </div>
+
+    <!-- Toast notification -->
+    <div id="toast" class="toast hidden">
+        <span id="toastMessage"></span>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
